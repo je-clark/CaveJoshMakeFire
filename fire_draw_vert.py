@@ -51,9 +51,10 @@ class Fire:
             right_x = left_x + scale
             top_y = max_height - ((y+1) * scale)
             bottom_y = max_height - ((y) * scale)
+            middle_fifth = 2*int((max_width/scale)/5)
             row = []
             for x in range(int(max_width/scale)):
-                if y == 0:
+                if (y == 0) and (middle_fifth <= x <= (int(max_width/scale)-middle_fifth)):
                     color = colors[0]
                 else:
                     color = colors[-1]
@@ -69,20 +70,37 @@ class Fire:
     def fire_loop(self):
         for y in range(1,len(self.map)):
             for x in range(len(self.map[y])):
-                color_index = colors.index(w.itemcget(self.map[y-1][x],"fill")) + 1
-                if variance(0,4) == 0: # 25% chance of increased decay
+                try:
+                    left = colors.index(w.itemcget(self.map[y][x-1],"fill"))
+                except:
+                    left = len(colors) - 1
+                    pass
+                try:
+                    right = colors.index(w.itemcget(self.map[y][x+1],"fill"))
+                except:
+                    right = len(colors) - 1
+                try:
+                    below = colors.index(w.itemcget(self.map[y-1][x],"fill"))
+                except:
+                    below = len(colors) - 1
+                adjacencies = [left, right]
+                if variance(0,4) == 0:
+                    color_index = min(adjacencies) + 1
+                else:
+                    color_index = below #+ 1
+                if variance(0,3) == 0: 
                     color_index += 1
                 if color_index >= len(colors):
                     color_index = len(colors) - 1
                 w.itemconfig(self.map[y][x], outline=colors[color_index], fill=colors[color_index])
-        self.canvas.after(10,self.fire_loop)
+        self.canvas.after(100,self.fire_loop)
 
 
 master = Tk(className = 'FIRE')
 
 fire_scale = 10
 canvas_width = 1000
-canvas_height = fire_scale * len(colors)
+canvas_height = (fire_scale * len(colors))*3
 
 
 w = Canvas(master, width = canvas_width, height = canvas_height)
