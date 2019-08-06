@@ -80,9 +80,10 @@ class Fire:
 
 master = Tk(className = 'FIRE')
 
-canvas_width = 1000
-canvas_height = 1000
 fire_scale = 10
+canvas_width = 1000
+canvas_height = fire_scale * len(colors)
+
 
 w = Canvas(master, width = canvas_width, height = canvas_height)
 
@@ -93,7 +94,7 @@ fire = Fire(w, fire_scale, canvas_height, canvas_width)
 
 
 
-master.geometry('1000x1000+0+0')
+master.geometry(f'{canvas_width}x{canvas_height}+0+0')
 w.configure(background = 'black')
 w.pack()
 fire.fire_loop()
