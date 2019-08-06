@@ -39,21 +39,35 @@ colors = (
     '#070707', 
     '#000000')
 
-def fire_loop():
-    for y in range(1,y_pixels):
+class Fire:
+
+    def __init__(self, canvas, scale, max_height):
+        # Seed the bottom row of the fire
+        # Should be able to replace this with spots of fire later
         left_x = 0
-        right_x = 0 + fire_scale
-        top_y = canvas_height - ((y + 1) * fire_scale)
-        bottom_y = canvas_height - (y * fire_scale)
-        for x in range(x_pixels):
-            color_index = colors.index(w.itemcget(map[y-1,x],"fill"))+1
-            if variance(0,4) == 0: # 25% chance of increased decay
-                color_index += 1
-            if color_index >= len(colors):
-                color_index = len(colors) - 1
-            map[y,x] = w.create_rectangle(left_x, top_y, right_x, bottom_y, outline=colors[color_index], fill=colors[color_index])
+        right_x = left_x + scale
+        top_y = max_height - scale
+        bottom_y = max_height
+        for i in range(x_pixels):
+            map[0,i] = w.create_rectangle(left_x, top_y, right_x, bottom_y, outline=colors[0], fill = colors[0])
             left_x += fire_scale
             right_x += fire_scale
+
+    def fire_loop():
+        for y in range(1,y_pixels):
+            left_x = 0
+            right_x = 0 + fire_scale
+            top_y = canvas_height - ((y + 1) * fire_scale)
+            bottom_y = canvas_height - (y * fire_scale)
+            for x in range(x_pixels):
+                color_index = colors.index(w.itemcget(map[y-1,x],"fill"))+1
+                if variance(0,4) == 0: # 25% chance of increased decay
+                    color_index += 1
+                if color_index >= len(colors):
+                    color_index = len(colors) - 1
+                map[y,x] = w.create_rectangle(left_x, top_y, right_x, bottom_y, outline=colors[color_index], fill=colors[color_index])
+                left_x += fire_scale
+                right_x += fire_scale
 
 
 master = Tk(className = 'FIRE')
