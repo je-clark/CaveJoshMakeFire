@@ -41,7 +41,7 @@ colors = (
     '#070707', 
     '#000000')
 
-@njit
+#@njit
 def compute_new_color(map):
     print("Entered compute new color")
     #start = timer()
@@ -94,10 +94,7 @@ class Fire:
                 left_x += fire_scale
                 right_x += fire_scale
             map.append(row)
-        temp = []
-        for row in map:
-            temp.append(tuple(row))
-        self.map = tuple(temp)
+        self.map = np.array(map)
         print("Created initial map")
 
 
