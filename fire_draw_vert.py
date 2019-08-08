@@ -2,6 +2,8 @@ from tkinter import *
 from scipy.stats import expon
 import numpy as np
 from random import randrange as variance
+from timeit import default_timer as timer
+import copy
 
 colors = (
     '#FFFFFF', 
@@ -45,7 +47,7 @@ class Fire:
         self.canvas = canvas
         # Fill in all rectangles. start with one line of white and then black
         map = []
-        
+        color_list_len = len(colors)
         for y in range(int(max_height/scale)):
             left_x = 0
             right_x = left_x + scale
@@ -55,10 +57,10 @@ class Fire:
             row = []
             for x in range(int(max_width/scale)):
                 if (y == 0) and (middle_fifth <= x <= (int(max_width/scale)-middle_fifth)):
-                    color = colors[0]
+                    color_index = 0
                 else:
-                    color = colors[-1]
-                row.append(w.create_rectangle(left_x, top_y, right_x, bottom_y, outline=color, fill = color))
+                    color_index = color_list_len - 1
+                row.append([w.create_rectangle(left_x, top_y, right_x, bottom_y, outline=colors[color_index], fill = colors[color_index]),color_index])
                 left_x += fire_scale
                 right_x += fire_scale
             map.append(row)
@@ -68,21 +70,28 @@ class Fire:
         self.map = tuple(temp)
 
     def fire_loop(self):
+        #start = timer()
+        color_list_len = len(colors)
         for y in range(1,len(self.map)):
             for x in range(len(self.map[y])):
+                start_loop = timer()
                 try:
-                    left = colors.index(w.itemcget(self.map[y][x-1],"fill"))
+                    #left = colors.index(w.itemcget(self.map[y][x-1],"fill"))
+                    left = self.map[y][x-1][1]
                 except:
-                    left = len(colors) - 1
+                    left = color_list_len - 1
                     pass
                 try:
-                    right = colors.index(w.itemcget(self.map[y][x+1],"fill"))
+                    #right = colors.index(w.itemcget(self.map[y][x+1],"fill"))
+                    right = self.map[y][x+1][1]
                 except:
-                    right = len(colors) - 1
+                    right = color_list_len - 1
                 try:
-                    below = colors.index(w.itemcget(self.map[y-1][x],"fill"))
+                    #below = colors.index(w.itemcget(self.map[y-1][x],"fill"))
+                    below = self.map[y-1][x][1]
                 except:
-                    below = len(colors) - 1
+                    below = color_list_len - 1
+                lookups = timer()
                 adjacencies = [left, right]
                 if variance(0,4) == 0:
                     color_index = min(adjacencies) + 1
@@ -90,9 +99,13 @@ class Fire:
                     color_index = below #+ 1
                 if variance(0,3) == 0: 
                     color_index += 1
-                if color_index >= len(colors):
-                    color_index = len(colors) - 1
-                w.itemconfig(self.map[y][x], outline=colors[color_index], fill=colors[color_index])
+                if color_index >= color_list_len:
+                    color_index = color_list_len - 1
+                rand_calls = timer()
+                w.itemconfig(self.map[y][x][0], outline=colors[color_index], fill=colors[color_index])
+                self.map[y][x][1] = color_index
+                print(f"Lookups occurred in {lookups-start_loop} sec, while random calls occurred in {rand_calls-lookups} sec.")
+        #print(f"fire_loop completed in {timer() - start}")
         self.canvas.after(100,self.fire_loop)
 
 
