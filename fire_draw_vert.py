@@ -3,7 +3,7 @@ from scipy.stats import expon
 import numpy as np
 from random import randrange as variance
 from timeit import default_timer as timer
-import copy
+from numba import njit
 
 colors = (
     '#FFFFFF', 
@@ -41,6 +41,26 @@ colors = (
     '#070707', 
     '#000000')
 
+@njit
+def compute_new_color(map):
+    color_list_len = len(colors)
+    for y in range(1,len(map)):
+        for x in range(1,len(map[y])-1): # adding explicit bounds to avoid out of bounds in lookup
+            left = map[y][x-1][1]
+            right = map[y][x+1][1]
+            below = map[y-1][x][1]
+            adjacencies = [left, right]
+            if variance(0,4) == 0:
+                color_index = min(adjacencies) + 1
+            else:
+                color_index = below #+ 1
+            if variance(0,3) == 0: 
+                color_index += 1
+            if color_index >= color_list_len:
+                color_index = color_list_len - 1
+            map[y][x][1] = color_index
+    return map
+
 class Fire:
 
     def __init__(self, canvas, scale, max_height, max_width):
@@ -64,44 +84,30 @@ class Fire:
                 left_x += fire_scale
                 right_x += fire_scale
             map.append(row)
-        temp = []
-        for row in map:
-            temp.append(tuple(row))
-        self.map = tuple(temp)
+        self.map = np.array(map)
+        #print("Created initial map")
+
+
+
 
     def fire_loop(self):
         #start = timer()
-        color_list_len = len(colors)
+        self.map = compute_new_color(self.map)
+        #new_color_time = timer()
         for y in range(1,len(self.map)):
-            for x in range(1,len(self.map[y])-1): # adding explicit bounds to avoid out of bounds in lookup
-                start_loop = timer()
-                left = self.map[y][x-1][1]
-                right = self.map[y][x+1][1]
-
-                below = self.map[y-1][x][1]
-                lookups = timer()
-                adjacencies = [left, right]
-                if variance(0,4) == 0:
-                    color_index = min(adjacencies) + 1
-                else:
-                    color_index = below #+ 1
-                if variance(0,3) == 0: 
-                    color_index += 1
-                if color_index >= color_list_len:
-                    color_index = color_list_len - 1
-                rand_calls = timer()
-                w.itemconfig(self.map[y][x][0], outline=colors[color_index], fill=colors[color_index])
-                self.map[y][x][1] = color_index
-                print(f"Lookups occurred in {lookups-start_loop} sec, while random calls occurred in {rand_calls-lookups} sec.")
-        #print(f"fire_loop completed in {timer() - start}")
-        self.canvas.after(100,self.fire_loop)
+            for x in range(1,len(self.map[y])-1):
+                w.itemconfig(self.map[y][x][0], outline=colors[self.map[y][x][1]], fill=colors[self.map[y][x][1]])
+        #all_updated = timer()
+        #print(f"Computed new color in {new_color_time - start} sec. Updated colors in {all_updated - new_color_time} sec.")
+        self.canvas.after(30,self.fire_loop)
 
 
 master = Tk(className = 'FIRE')
 
-fire_scale = 10
+fire_scale = 20
 canvas_width = 1000
-canvas_height = (fire_scale * len(colors))*3
+canvas_height = 1000
+#canvas_height = (fire_scale * len(colors))*3
 
 
 w = Canvas(master, width = canvas_width, height = canvas_height)
