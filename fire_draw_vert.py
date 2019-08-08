@@ -73,24 +73,12 @@ class Fire:
         #start = timer()
         color_list_len = len(colors)
         for y in range(1,len(self.map)):
-            for x in range(len(self.map[y])):
+            for x in range(1,len(self.map[y])-1): # adding explicit bounds to avoid out of bounds in lookup
                 start_loop = timer()
-                try:
-                    #left = colors.index(w.itemcget(self.map[y][x-1],"fill"))
-                    left = self.map[y][x-1][1]
-                except:
-                    left = color_list_len - 1
-                    pass
-                try:
-                    #right = colors.index(w.itemcget(self.map[y][x+1],"fill"))
-                    right = self.map[y][x+1][1]
-                except:
-                    right = color_list_len - 1
-                try:
-                    #below = colors.index(w.itemcget(self.map[y-1][x],"fill"))
-                    below = self.map[y-1][x][1]
-                except:
-                    below = color_list_len - 1
+                left = self.map[y][x-1][1]
+                right = self.map[y][x+1][1]
+
+                below = self.map[y-1][x][1]
                 lookups = timer()
                 adjacencies = [left, right]
                 if variance(0,4) == 0:
