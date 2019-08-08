@@ -85,27 +85,29 @@ class Fire:
                 right_x += fire_scale
             map.append(row)
         self.map = np.array(map)
-        print("Created initial map")
+        #print("Created initial map")
 
 
 
 
     def fire_loop(self):
-        start = timer()
+        #start = timer()
         self.map = compute_new_color(self.map)
-        new_color_time = timer()
+        #new_color_time = timer()
         for y in range(1,len(self.map)):
             for x in range(1,len(self.map[y])-1):
                 w.itemconfig(self.map[y][x][0], outline=colors[self.map[y][x][1]], fill=colors[self.map[y][x][1]])
-        print(f"Computed new color in {new_color_time - start} sec. Updated colors in {timer() - new_color_time} sec.")
-        self.canvas.after(100,self.fire_loop)
+        #all_updated = timer()
+        #print(f"Computed new color in {new_color_time - start} sec. Updated colors in {all_updated - new_color_time} sec.")
+        self.canvas.after(30,self.fire_loop)
 
 
 master = Tk(className = 'FIRE')
 
-fire_scale = 10
+fire_scale = 20
 canvas_width = 1000
-canvas_height = (fire_scale * len(colors))*3
+canvas_height = 1000
+#canvas_height = (fire_scale * len(colors))*3
 
 
 w = Canvas(master, width = canvas_width, height = canvas_height)
