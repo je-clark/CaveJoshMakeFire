@@ -41,7 +41,7 @@ colors = (
     '#070707', 
     '#000000')
 
-#@njit
+@njit
 def compute_new_color(map):
     print("Entered compute new color")
     #start = timer()
